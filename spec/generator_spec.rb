@@ -2070,4 +2070,33 @@ describe Sord::Generator do
       end
     RUBY
   end
+
+  # TODO: fix title
+  it do
+    YARD.parse_string(<<-RUBY)
+      module X
+      end
+
+      module M
+        class A < ::X
+        end
+
+        module X
+        end
+      end
+    RUBY
+
+    expect(rbs_gen.generate.strip).to eq fix_heredoc(<<-RUBY)
+      module X
+      end
+
+      module M
+        class A < ::X
+        end
+
+        module X
+        end
+      end
+    RUBY
+  end
 end

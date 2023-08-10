@@ -582,8 +582,15 @@ module Sord
       return if @hide_private && item.visibility == :private
       count_namespace
 
-      superclass = nil
-      superclass = item.superclass.path.to_s if item.type == :class && item.superclass.to_s != "Object"
+      # TODO: more readable
+      if item.type == :class && item.superclass.to_s != "Object"
+        if item.superclass.namespace.root?
+          namespaces = item.namespace.path.split("::")
+          candidates = namespaces.map.with_index { |_n, i| namespaces.take(i + 1).join("::") + "::" + item.superclass.path.to_s }
+          prefix = "::" if candidates.any? { |c| YARD::Registry.at(c) }
+        end
+        superclass = "#{prefix}#{item.superclass.path}"
+      end
 
       parent = @current_object
       @current_object = item.type == :class \
